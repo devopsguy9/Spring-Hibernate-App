@@ -34,7 +34,7 @@ pipeline {
 	stage('Code Coverage') {
     	    agent any
                 steps {
-                    sh 'mvn cobertura:cobertura -Dcobertura.report.format=xml'
+                    sh 'mvn -DskipTests cobertura:cobertura -Dcobertura.report.format=xml'
                     cobertura coberturaReportFile: 'target/site/cobertura/coverage.xml'
                 }
             }    	
@@ -43,7 +43,7 @@ pipeline {
     	    agent any
     	        steps {
                     withSonarQubeEnv('sonar') {
-                    sh 'mvn sonar:sonar'
+                    sh 'mvn -DskipTests sonar:sonar'
                     }
                 }
             } 
@@ -62,12 +62,19 @@ pipeline {
                     env.VERSION = readMavenPom().getVersion()
                 }
                     echo 'Publishing the Artficat: ' + VERSION
-                    sh 'mvn package'
+                    sh 'mvn -DskipTests package'
                     nexusPublisher nexusInstanceId: 'nexus', nexusRepositoryId: 'releases', packages: [
      [$class: 'MavenPackage', mavenAssetList: [
       [classifier: '', extension: '', filePath: '/var/lib/jenkins/workspace/SpringAppGit/target/SpringHibernateExample-' + VERSION + '.war']
      ], mavenCoordinate: [artifactId: 'SpringHibernateExample', groupId: 'com.websystique.springmvc', packaging: 'war', version: VERSION]]
     ]
+                }
+            }
+
+	stage('Deploy To App Server') {
+    	    agent any
+                steps {
+                    sh 'sudo cp /var/lib/jenkins/workspace/SpringAppGit/target/*.war /home/ninja/apache-tomcat-7.0.92/webapps'
                 }
             }
 
