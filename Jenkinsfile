@@ -47,5 +47,13 @@ pipeline {
                     }
                 }
             } 
+	    
+	stage('Generate Documentation') {
+    	    agent any
+                steps {
+                    sh 'mvn javadoc:javadoc'
+                    step([$class: 'JavadocArchiver', javadocDir: 'target/site/apidocs', keepAll: false])
+                }
+            }
     }
 }
