@@ -55,5 +55,21 @@ pipeline {
                     step([$class: 'JavadocArchiver', javadocDir: 'target/site/apidocs', keepAll: false])
                 }
             }
+        stage('Build & Publish ') {
+    	    agent any
+                steps {
+                    script {
+                    env.VERSION = readMavenPom().getVersion()
+                }
+                    echo 'Publishing the Artficat: ' + VERSION
+                    sh 'mvn package'
+                    nexusPublisher nexusInstanceId: 'nexus', nexusRepositoryId: 'releases', packages: [
+     [$class: 'MavenPackage', mavenAssetList: [
+      [classifier: '', extension: '', filePath: '/var/lib/jenkins/workspace/CalAppSetup/target/SpringHibernateExample-' + VERSION + '.war']
+     ], mavenCoordinate: [artifactId: 'SpringHibernateExample', groupId: 'com.websystique.springmvc', packaging: 'war', version: VERSION]]
+    ]
+                }
+            }
+
     }
 }
