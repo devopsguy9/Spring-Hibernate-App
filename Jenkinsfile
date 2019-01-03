@@ -38,5 +38,14 @@ pipeline {
                     cobertura coberturaReportFile: 'target/site/cobertura/coverage.xml'
                 }
             }    	
+
+	stage('Sonar Analysis') {
+    	    agent any
+    	        steps {
+                    withSonarQubeEnv('sonar') {
+                    sh 'mvn sonar:sonar'
+                    }
+                }
+            } 
     }
 }
