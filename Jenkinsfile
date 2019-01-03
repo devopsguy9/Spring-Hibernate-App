@@ -30,6 +30,13 @@ pipeline {
             }
 
             }
-	
+
+	stage('Code Coverage') {
+    	    agent any
+                steps {
+                    sh 'mvn cobertura:cobertura -Dcobertura.report.format=xml'
+                    cobertura coberturaReportFile: 'target/site/cobertura/coverage.xml'
+                }
+            }    	
     }
 }
